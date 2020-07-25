@@ -8,10 +8,16 @@
 #define HEADING_RED 5
 #define NORMAL_GREEN 6
 #define NORMAL_RED 7
+#define STABILITY_ASSIST 9
+#define NORMAL 8
 
 boolean sasLastButton = LOW; // previous SAS button state
 boolean sasCurrentButton = LOW; // current SAS button state
 boolean sasState = false; // the present state of SAS
+boolean stabilityAssistLastButton = LOW;
+boolean stabilityAssistCurrentButton = LOW;
+boolean normalLastButton = LOW;
+boolean normalCurrentButton = LOW;
 
 HardwareSerial *conn;
 krpc_SpaceCenter_Control_t instance;
@@ -30,11 +36,11 @@ void blink_led(int count) {
 }
 
 // Button debounce 
-boolean debounce(boolean last) {
-  boolean current = digitalRead(SAS_BUTTON);
+boolean debounce(int pin, boolean last) {
+  boolean current = digitalRead(pin);
   if(last != current) {
     delay(5);
-    current = digitalRead(SAS_BUTTON);
+    current = digitalRead(pin);
   }
   return current;
 }
@@ -117,21 +123,34 @@ void loop() {
     }
   } while (error != KRPC_OK);
 
-  sasCurrentButton = debounce(sasLastButton);
+  sasCurrentButton = debounce(SAS_BUTTON, sasLastButton);
   if (sasLastButton == HIGH && sasCurrentButton == LOW) { // button pressed
     sasState = !sasState; // toggle the sasState variable
   }
 
-  if (sasLastButton == LOW && sasCurrentButton == HIGH) {
-    cutTheLights();
-  }
-  
   sasLastButton = sasCurrentButton;
   krpc_SpaceCenter_Control_set_SAS(conn, control, sasState);
   digitalWrite(SAS_LED, sasState);
   
+  // sas buttons NOT WORKING
+  // stability assist 
+  stabilityAssistCurrentButton = debounce(STABILITY_ASSIST, stabilityAssistLastButton);
+  if (stabilityAssistLastButton == HIGH && stabilityAssistCurrentButton == LOW) { // button pressed
+    krpc_SpaceCenter_Control_set_SASMode(conn, control, KRPC_SPACECENTER_SASMODE_STABILITYASSIST);
+  }
+  stabilityAssistLastButton = stabilityAssistCurrentButton;
+ 
+  // normal 
+  normalCurrentButton = debounce(NORMAL, normalLastButton);
+  if (normalLastButton == HIGH && normalCurrentButton == LOW) { // button pressed
+    krpc_SpaceCenter_Control_set_SASMode(conn, control, KRPC_SPACECENTER_SASMODE_NORMAL);
+  }
+  normalLastButton = normalCurrentButton;
+
+ 
   krpc_SpaceCenter_SASMode_t sasMode;
   krpc_SpaceCenter_Control_SASMode(conn, &sasMode, control);
+  
   
   if (sasState) {
     switch (sasMode) {
@@ -150,5 +169,7 @@ void loop() {
     default:
       break;
     }
+  } else {
+    cutTheLights();
   }
 }
