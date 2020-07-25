@@ -4,22 +4,10 @@
 
 #define SAS_LED 3
 #define SAS_BUTTON 2
-#define HEADING_ENABLED_LED 4
-#define HEADING_DISABLED_LED 5
-//#define MANEUVER_ENABLED_LED 4
-//#define MANEUVER_DISABLED_LED 5
-//#define PROGRADE_ENABLED_LED 4
-//#define PROGRADE_DISABLED_LED 5
-//#define RETROGRADE_ENABLED_LED 4
-//#define RETROGRADE_DISABLED_LED 5
-#define TARGET_ENABLED_LED 6
-#define TARGET_DISABLED_LED 7
-#define ANTITARGET_ENABLED_LED 8
-#define ANTITARGET_DISABLED_LED 9
-#define RADIALIN_ENABLED_LED 10
-#define RADIALIN_DISABLED_LED 11
-#define RADIALOUT_ENABLED_LED 12
-#define RADIALOUT_DISABLED_LED 13
+#define HEADING_GREEN 4
+#define HEADING_RED 5
+#define NORMAL_GREEN 6
+#define NORMAL_RED 7
 
 boolean sasLastButton = LOW; // previous SAS button state
 boolean sasCurrentButton = LOW; // current SAS button state
@@ -53,29 +41,17 @@ boolean debounce(boolean last) {
 
 // make the SAS row all red 
 void disableSasLeds(){
-  digitalWrite(HEADING_ENABLED_LED, LOW);
-  digitalWrite(HEADING_DISABLED_LED, HIGH);
-  digitalWrite(TARGET_ENABLED_LED, LOW);
-  digitalWrite(TARGET_DISABLED_LED, HIGH);
-  digitalWrite(ANTITARGET_ENABLED_LED, LOW);
-  digitalWrite(ANTITARGET_DISABLED_LED, HIGH);
-  digitalWrite(RADIALIN_ENABLED_LED, LOW);
-  digitalWrite(RADIALIN_DISABLED_LED, HIGH);
-  digitalWrite(RADIALOUT_ENABLED_LED, LOW);
-  digitalWrite(RADIALOUT_DISABLED_LED, HIGH);
+  digitalWrite(HEADING_GREEN, LOW);
+  digitalWrite(HEADING_RED, HIGH);
+  digitalWrite(NORMAL_GREEN, LOW);
+  digitalWrite(NORMAL_RED, HIGH);
 }
 
 void cutTheLights() {
-  digitalWrite(HEADING_ENABLED_LED, LOW);
-  digitalWrite(HEADING_DISABLED_LED, LOW);
-  digitalWrite(TARGET_ENABLED_LED, LOW);
-  digitalWrite(TARGET_DISABLED_LED, LOW);
-  digitalWrite(ANTITARGET_ENABLED_LED, LOW);
-  digitalWrite(ANTITARGET_DISABLED_LED, LOW);
-  digitalWrite(RADIALIN_ENABLED_LED, LOW);
-  digitalWrite(RADIALIN_DISABLED_LED, LOW);
-  digitalWrite(RADIALOUT_ENABLED_LED, LOW);
-  digitalWrite(RADIALOUT_DISABLED_LED, LOW);
+  digitalWrite(HEADING_GREEN, LOW);
+  digitalWrite(HEADING_RED, LOW);
+  digitalWrite(NORMAL_GREEN, LOW);
+  digitalWrite(NORMAL_RED, LOW);
 }
 
 void setup() {
@@ -83,12 +59,16 @@ void setup() {
 
   pinMode(SAS_LED, OUTPUT);
   pinMode(SAS_BUTTON, INPUT_PULLUP);
-  pinMode(HEADING_ENABLED_LED, OUTPUT);
-  pinMode(HEADING_DISABLED_LED, OUTPUT);
+  pinMode(HEADING_GREEN, OUTPUT);
+  pinMode(HEADING_RED, OUTPUT);
+  pinMode(NORMAL_GREEN, OUTPUT);
+  pinMode(NORMAL_RED, OUTPUT);
   
   digitalWrite(SAS_LED, LOW);
-  digitalWrite(HEADING_ENABLED_LED, LOW);
-  digitalWrite(HEADING_DISABLED_LED, LOW);
+  digitalWrite(HEADING_GREEN, LOW);
+  digitalWrite(HEADING_RED, LOW);
+  digitalWrite(NORMAL_GREEN, LOW);
+  digitalWrite(NORMAL_RED, LOW);
 
   conn = &Serial;
   delay(1000);
@@ -156,29 +136,16 @@ void loop() {
   if (sasState) {
     switch (sasMode) {
     case KRPC_SPACECENTER_SASMODE_STABILITYASSIST:
-      disableSasLeds();
-      digitalWrite(HEADING_ENABLED_LED, HIGH);
-      digitalWrite(HEADING_DISABLED_LED, LOW);
+      digitalWrite(HEADING_GREEN, HIGH);
+      digitalWrite(HEADING_RED, LOW);
+      digitalWrite(NORMAL_GREEN, LOW);
+      digitalWrite(NORMAL_RED, HIGH);
       break;
-     case KRPC_SPACECENTER_SASMODE_RADIAL:
-      disableSasLeds();
-      digitalWrite(RADIALIN_ENABLED_LED, HIGH);
-      digitalWrite(RADIALIN_DISABLED_LED, LOW);
-      break;
-     case KRPC_SPACECENTER_SASMODE_ANTIRADIAL:
-      disableSasLeds();
-      digitalWrite(RADIALOUT_ENABLED_LED, HIGH);
-      digitalWrite(RADIALOUT_DISABLED_LED, LOW);
-      break;
-     case KRPC_SPACECENTER_SASMODE_TARGET:
-      disableSasLeds();
-      digitalWrite(TARGET_ENABLED_LED, HIGH);
-      digitalWrite(TARGET_DISABLED_LED, LOW);
-      break;
-     case KRPC_SPACECENTER_SASMODE_ANTITARGET:
-      disableSasLeds();
-      digitalWrite(ANTITARGET_ENABLED_LED, HIGH);
-      digitalWrite(ANTITARGET_DISABLED_LED, LOW);
+     case KRPC_SPACECENTER_SASMODE_NORMAL:
+      digitalWrite(NORMAL_GREEN, HIGH);
+      digitalWrite(NORMAL_RED, LOW);
+      digitalWrite(HEADING_GREEN, LOW);
+      digitalWrite(HEADING_RED, HIGH);
       break;
     default:
       break;
